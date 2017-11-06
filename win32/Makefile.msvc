@@ -36,6 +36,9 @@ XML_A_DLL = $(XML_BASENAME)_a_dll.lib
 !endif
 XML_DEF_SRC = $(XML_BASENAME).def
 
+XML_RES = $(XML_BASENAME).res
+XML_RES_SRC = $(XML_BASENAME).rc
+
 # Place where we let the compiler put its output.
 BINDIR = bin.msvc
 XML_INTDIR = int.msvc
@@ -295,7 +298,7 @@ _VC_MANIFEST_EMBED_DLL=
 
 all : libxml libxmla libxmladll utils
 
-libxml : $(BINDIR)\$(XML_SO) 
+libxml : $(BINDIR)\$(XML_SO)
 
 libxmla : $(BINDIR)\$(XML_A)
 
@@ -387,10 +390,13 @@ $(XML_OBJS_A_DLL) : $(XML_INTDIR_A_DLL)
 $(XML_INTDIR)\$(XML_DEF) : $(XML_INTDIR) $(XML_DEF_SRC).src
 	$(CPP) $(CPPFLAGS) $(XML_DEF_SRC).src > $(XML_INTDIR)\$(XML_DEF)
 
+$(XML_INTDIR)\$(XML_RES) : $(XML_RES_SRC)
+	rc -Fo $(XML_INTDIR)\$(XML_RES) $(XML_RES_SRC)
+
 # Creates the libxml shared object.
-$(BINDIR)\$(XML_SO) : $(BINDIR) $(XML_OBJS) $(XML_INTDIR)\$(XML_DEF)
+$(BINDIR)\$(XML_SO) : $(BINDIR) $(XML_OBJS) $(XML_INTDIR)\$(XML_DEF) $(XML_INTDIR)\$(XML_RES)
 	$(LD) $(LDFLAGS) /DLL \
-		/IMPLIB:$(BINDIR)\$(XML_IMP) /OUT:$(BINDIR)\$(XML_SO) $(XML_OBJS) $(LIBS)
+		/IMPLIB:$(BINDIR)\$(XML_IMP) /OUT:$(BINDIR)\$(XML_SO) $(XML_OBJS) $(XML_INTDIR)\$(XML_RES) $(LIBS)
 	@$(_VC_MANIFEST_EMBED_DLL)
 
 #$(BINDIR)\$(XML_SO) : $(BINDIR) $(XML_OBJS) $(XML_INTDIR)\$(XML_DEF)
